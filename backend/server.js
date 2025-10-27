@@ -1,12 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config(); // Tải các biến từ file .env
+require('dotenv').config(); 
 
 const app = express();
 
 // Middleware
-app.use(express.json()); // Cho phép server đọc JSON
-app.use(cors());         // Cho phép React gọi API
+app.use(express.json()); 
+app.use(cors());      
+
+const userRoutes = require('./routes/user');
+app.use('/', userRoutes);
 
 const PORT = process.env.PORT || 3000;
 

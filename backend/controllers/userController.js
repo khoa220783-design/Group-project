@@ -28,3 +28,40 @@ exports.createUser = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.updateUser = async (req, res) => {
+    try {
+        const { id } = req.params; // Lấy id từ URL
+        const { name, email } = req.body; // Lấy data mới
+
+        const updatedUser = await User.findByIdAndUpdate(
+            id, 
+            { name, email }, // Data cần cập nhật
+            { new: true } // Tùy chọn này để nó trả về user sau khi đã update
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "Không tìm thấy user" });
+        }
+        res.json(updatedUser); // Trả về user đã cập nhật
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+// DELETE /users/:id
+// Mục tiêu: Xóa user theo ID
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params; // Lấy id từ URL
+
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: "Không tìm thấy user" });
+        }
+        res.json({ message: "Đã xóa user thành công" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};

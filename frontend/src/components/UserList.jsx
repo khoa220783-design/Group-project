@@ -1,6 +1,7 @@
 import React from 'react';
 
-function UserList({ users }) {
+// Nhận thêm onEdit và onDelete từ App.js
+function UserList({ users, onEdit, onDelete }) { 
     return (
         <div>
             <h3>Danh sách User</h3>
@@ -8,10 +9,13 @@ function UserList({ users }) {
                 {users.length === 0 ? (
                     <li>Không có user nào</li>
                 ) : (
-                    // Dùng _id vì MongoDB sẽ trả về _id, còn mảng tạm thì dùng id
                     users.map(user => (
-                        <li key={user.id || user._id}>
+                        <li key={user._id}> {/* Dùng _id của MongoDB */}
                             {user.name} ({user.email})
+                            
+                            {/* THÊM 2 NÚT NÀY */}
+                            <button onClick={() => onEdit(user)}>Sửa</button>
+                            <button onClick={() => onDelete(user._id)}>Xóa</button>
                         </li>
                     ))
                 )}

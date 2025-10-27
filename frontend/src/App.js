@@ -2,15 +2,53 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import UserList from './components/UserList';
 import AddUser from './components/AddUser';
-import './App.css'; // File CSS có sẵn của React
+import './App.css'; 
 
-// Đây là URL API backend của bạn
 const API_URL = "http://localhost:3000";
+
+// TÁCH FORM SỬA RA THÀNH COMPONENT RIÊNG (cho dễ quản lý)
+function EditUser({ user, onUserUpdated, onCancel }) {
+    const [name, setName] = useState(user.name);
+    const [email, setEmail] = useState(user.email);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Gọi API PUT
+            await axios.put(`${API_URL}/users/${user._id}`, { name, email });
+            onUserUpdated(); // Báo App.js tải lại
+        } catch (error) {
+            console.error("Error updating user:", error);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <h3>Sửa User: {user.name}</h3>
+            <input
+                type="text"
+                placeholder="Tên"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+            />
+            <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <button type="submit">Cập nhật</button>
+            <button type="button" onClick={onCancel}>Hủy</button>
+        </form>
+    );
+}
+
 
 function App() {
     const [users, setUsers] = useState([]);
+    const [editingUser, setEditingUser] = useState(null); // STATE MỚI: Lưu user đang sửa
 
-    // Hàm tải danh sách user từ backend
+    // Hàm tải User (giữ nguyên)
     const fetchUsers = async () => {
         try {
             const response = await axios.get(`${API_URL}/users`);
@@ -20,14 +58,41 @@ function App() {
         }
     };
 
-    // useEffect sẽ chạy 1 lần khi App được tải
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    // Hàm này được gọi từ AddUser.jsx sau khi thêm user thành công
+    // Xử lý Thêm (giữ nguyên)
     const handleUserAdded = () => {
-        fetchUsers(); // Tải lại danh sách user
+        fetchUsers(); 
+    };
+
+    // HÀM MỚI: Xử lý Xóa
+    const handleDelete = async (id) => {
+        if (window.confirm("Bạn có chắc muốn xóa user này?")) {
+            try {
+                await axios.delete(`${API_URL}/users/${id}`);
+                fetchUsers(); // Tải lại danh sách sau khi xóa
+            } catch (error) {
+                console.error("Error deleting user:", error);
+            }
+        }
+    };
+
+    // HÀM MỚI: Xử lý khi nhấn nút Sửa
+    const handleEdit = (user) => {
+        setEditingUser(user); // Lưu user đang sửa vào state
+    };
+
+    // HÀM MỚI: Xử lý khi nhấn nút Hủy (ở form Sửa)
+    const handleCancelEdit = () => {
+        setEditingUser(null);
+    };
+
+    // HÀM MỚI: Xử lý khi cập nhật (Sửa) xong
+    const handleUserUpdated = () => {
+        setEditingUser(null); // Xóa user đang sửa
+        fetchUsers(); // Tải lại danh sách
     };
 
     return (
@@ -35,11 +100,26 @@ function App() {
             <header className="App-header">
                 <h1>Quản lý User</h1>
                 
-                {/* Component thêm User */}
-                <AddUser onUserAdded={handleUserAdded} />
+                {/* HIỂN THỊ CÓ ĐIỀU KIỆN:
+                  Nếu đang sửa -> Hiện form Sửa
+                  Nếu không -> Hiện form Thêm
+                */}
+                {editingUser ? (
+                    <EditUser 
+                        user={editingUser} 
+                        onUserUpdated={handleUserUpdated} 
+                        onCancel={handleCancelEdit} 
+                    />
+                ) : (
+                    <AddUser onUserAdded={handleUserAdded} />
+                )}
                 
-                {/* Component danh sách User */}
-                <UserList users={users} />
+                {/* Truyền 2 hàm mới vào UserList */}
+                <UserList 
+                    users={users} 
+                    onEdit={handleEdit} 
+                    onDelete={handleDelete} 
+                />
             </header>
         </div>
     );

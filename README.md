@@ -6,5 +6,10 @@
 * **Sinh viên 2 (Branch: `frontend`):** Phụ trách Frontend (React)
 * **Sinh viên 3 (Branch: `database`):** Phụ trách Database (MongoDB)
 
+
 ## Hướng dẫn chạy Backend
 - Chạy: `npm run dev` trong thư mục `backend`
+
+## Hướng dẫn chạy Frontend
+- Chạy: `npm start` trong thư mục `frontend`
+

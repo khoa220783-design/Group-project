@@ -10,14 +10,26 @@ function AddUser({ onUserAdded }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!name || !email) {
-            alert('Vui lòng nhập tên và email');
-            return;
+        
+        // --- PHẦN VALIDATION MỚI ---
+        
+        // 1. Kiểm tra tên có rỗng (hoặc chỉ có dấu cách)
+        if (!name.trim()) { 
+            alert("Name không được để trống");
+            return; // Dừng hàm, không gửi API
         }
+        
+        // 2. Kiểm tra email bằng Regex (đảm bảo có dạng a@b.c)
+        if (!/\S+@\S+\.\S+/.test(email)) { 
+            alert("Email không hợp lệ");
+            return; // Dừng hàm, không gửi API
+        }
+        // --- HẾT PHẦN VALIDATION ---
+        
         try {
             // Gửi request POST đến backend
             const response = await axios.post(`${API_URL}/users`, { name, email });
-            onUserAdded(response.data); // Báo cho App.js biết để tải lại danh sách
+            onUserAdded(response.data); // Báo App.js tải lại
             setName('');
             setEmail('');
         } catch (error) {

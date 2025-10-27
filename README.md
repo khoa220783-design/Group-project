@@ -5,3 +5,6 @@
 * **Sinh viên 1 (Branch: `backend`):** Phụ trách Backend (Node.js + Express)
 * **Sinh viên 2 (Branch: `frontend`):** Phụ trách Frontend (React)
 * **Sinh viên 3 (Branch: `database`):** Phụ trách Database (MongoDB)
+
+## Hướng dẫn chạy Frontend
+- Chạy: `npm start` trong thư mục `frontend`

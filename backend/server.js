@@ -20,5 +20,5 @@ app.use('/auth', authRoutes); // Auth routes: /auth/signup, /auth/login, /auth/l
 app.use('/', userRoutes);
 
 // SỬA: Lấy PORT từ .env
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server dang chay tren port ${PORT}`));

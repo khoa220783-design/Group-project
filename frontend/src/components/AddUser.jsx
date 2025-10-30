@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 // Đây là URL API backend của bạn
-const API_URL = "http://localhost:3000";
+const API_URL = "http://localhost:5000";
 
 function AddUser({ onUserAdded }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const { token } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,13 +30,21 @@ function AddUser({ onUserAdded }) {
         // --- HẾT PHẦN VALIDATION ---
         
         try {
-            // Gửi request POST đến backend
-            const response = await axios.post(`${API_URL}/users`, { name, email });
+            // Gửi request POST đến backend với token trong header
+            const response = await axios.post(
+                `${API_URL}/users`, 
+                { name, email },
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+            toast.success('Thêm user thành công!');
             onUserAdded(response.data); // Báo App.js tải lại
             setName('');
             setEmail('');
         } catch (error) {
             console.error('Error adding user:', error);
+            toast.error('Có lỗi khi thêm user');
         }
     };
 

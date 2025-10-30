@@ -31,11 +31,22 @@ function Header() {
                         >
                             Profile
                         </Link>
+                        {user && user.role === 'admin' && (
+                            <Link 
+                                to="/admin" 
+                                className={location.pathname === '/admin' ? 'nav-link active' : 'nav-link'}
+                            >
+                                Admin
+                            </Link>
+                        )}
                     </nav>
                 </div>
                 {user && (
                     <div className="user-info">
-                        <span className="welcome-text">Xin chào, {user.name}</span>
+                        <span className="welcome-text">
+                            Xin chào, {user.name}
+                            {user.role === 'admin' && <span className="admin-badge">Admin</span>}
+                        </span>
                         <button onClick={handleLogout} className="logout-button">
                             Đăng xuất
                         </button>
@@ -47,4 +58,3 @@ function Header() {
 }
 
 export default Header;
-

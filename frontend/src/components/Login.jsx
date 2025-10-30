@@ -73,9 +73,15 @@ function Login() {
                     </button>
                 </form>
 
-                <p className="auth-link">
-                    Chưa có tài khoản? <Link to="/signup">Đăng ký ngay</Link>
-                </p>
+                <div className="auth-footer">
+                    <Link to="/forgot-password" className="auth-link">
+                        Quên mật khẩu?
+                    </Link>
+                    <span className="separator">•</span>
+                    <Link to="/signup" className="auth-link">
+                        Đăng ký ngay
+                    </Link>
+                </div>
             </div>
         </div>
     );

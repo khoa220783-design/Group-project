@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
             if (savedToken) {
                 try {
                     // Gọi API để lấy thông tin user
-                    const response = await axios.get(`${API_URL}/auth/me`, {
+                    const response = await axios.get(`${API_URL}/api/auth/me`, {
                         headers: { Authorization: `Bearer ${savedToken}` }
                     });
                     setUser(response.data.user);
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     // Hàm đăng ký
     const signup = async (name, email, password) => {
         try {
-            const response = await axios.post(`${API_URL}/auth/signup`, {
+            const response = await axios.post(`${API_URL}/api/auth/signup`, {
                 name,
                 email,
                 password
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     // Hàm đăng nhập
     const login = async (email, password) => {
         try {
-            const response = await axios.post(`${API_URL}/auth/login`, {
+            const response = await axios.post(`${API_URL}/api/auth/login`, {
                 email,
                 password
             });
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     // Hàm đăng xuất
     const logout = async () => {
         try {
-            await axios.post(`${API_URL}/auth/logout`);
+            await axios.post(`${API_URL}/api/auth/logout`);
         } catch (error) {
             console.error('Lỗi khi đăng xuất:', error);
         } finally {
@@ -109,6 +109,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        setUser,
         token,
         loading,
         signup,

@@ -18,7 +18,7 @@ const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 
 // Routes
-app.use('/auth', authRoutes); // Auth routes: /auth/signup, /auth/login, /auth/logout
+app.use('/api/auth', authRoutes); // Auth routes: /api/auth/signup, /api/auth/login, /api/auth/logout
 app.use('/api', profileRoutes); // Profile routes: /api/profile (GET, PUT)
 app.use('/admin', adminRoutes); // Admin routes: /admin/make-admin, /admin/remove-admin
 app.use('/', userRoutes);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
 import axios from 'axios';
@@ -8,12 +8,15 @@ import './Profile.css';
 const API_URL = "http://localhost:5000";
 
 function Profile() {
-    const { user, token } = useAuth();
+    const { user, token, setUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const fileInputRef = useRef(null);
     const [profileData, setProfileData] = useState({
         name: '',
-        email: ''
+        email: '',
+        avatar: null
     });
     const [editData, setEditData] = useState({
         name: '',
@@ -34,7 +37,8 @@ function Profile() {
             const profile = response.data.profile;
             setProfileData({
                 name: profile.name,
-                email: profile.email
+                email: profile.email,
+                avatar: profile.avatar
             });
             setEditData({
                 name: profile.name,
@@ -94,7 +98,8 @@ function Profile() {
             const updatedProfile = response.data.profile;
             setProfileData({
                 name: updatedProfile.name,
-                email: updatedProfile.email
+                email: updatedProfile.email,
+                avatar: updatedProfile.avatar
             });
             setIsEditing(false);
             toast.success('Cập nhật profile thành công!');
@@ -107,14 +112,154 @@ function Profile() {
         }
     };
 
+    // Upload Avatar
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Vui lòng chọn file ảnh');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Kích thước ảnh không được vượt quá 5MB');
+            return;
+        }
+
+        setUploadingAvatar(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const response = await axios.post(
+                `${API_URL}/api/auth/upload-avatar`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+
+            setProfileData(prev => ({
+                ...prev,
+                avatar: response.data.avatar
+            }));
+
+            // Update user in context if setUser is available
+            if (setUser) {
+                setUser(prev => ({
+                    ...prev,
+                    avatar: response.data.avatar
+                }));
+            }
+
+            toast.success('Upload avatar thành công!');
+        } catch (error) {
+            console.error('Error uploading avatar:', error);
+            const errorMsg = error.response?.data?.message || 'Có lỗi khi upload avatar';
+            toast.error(errorMsg);
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
+
+    // Delete Avatar
+    const handleDeleteAvatar = async () => {
+        if (!window.confirm('Bạn có chắc muốn xóa avatar?')) {
+            return;
+        }
+
+        setUploadingAvatar(true);
+
+        try {
+            await axios.delete(
+                `${API_URL}/api/auth/delete-avatar`,
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+
+            setProfileData(prev => ({
+                ...prev,
+                avatar: null
+            }));
+
+            // Update user in context if setUser is available
+            if (setUser) {
+                setUser(prev => ({
+                    ...prev,
+                    avatar: null
+                }));
+            }
+
+            toast.success('Xóa avatar thành công!');
+        } catch (error) {
+            console.error('Error deleting avatar:', error);
+            const errorMsg = error.response?.data?.message || 'Có lỗi khi xóa avatar';
+            toast.error(errorMsg);
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
+
     return (
         <>
             <Header />
             <div className="profile-container">
                 <div className="profile-card">
                 <div className="profile-header">
-                    <div className="avatar">
-                        {profileData.name.charAt(0).toUpperCase()}
+                    <div className="avatar-section">
+                        <div 
+                            className="avatar-wrapper"
+                            onClick={!uploadingAvatar ? handleAvatarClick : undefined}
+                            style={{ cursor: uploadingAvatar ? 'not-allowed' : 'pointer' }}
+                        >
+                            {profileData.avatar ? (
+                                <img 
+                                    src={profileData.avatar} 
+                                    alt="Avatar" 
+                                    className="avatar-image"
+                                />
+                            ) : (
+                                <div className="avatar-placeholder">
+                                    {profileData.name.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            {uploadingAvatar && (
+                                <div className="avatar-loading">
+                                    <div className="spinner"></div>
+                                </div>
+                            )}
+                            <div className="avatar-overlay">
+                                <span>📷</span>
+                            </div>
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarChange}
+                            style={{ display: 'none' }}
+                        />
+                        {profileData.avatar && (
+                            <button
+                                className="btn-delete-avatar"
+                                onClick={handleDeleteAvatar}
+                                disabled={uploadingAvatar}
+                            >
+                                Xóa avatar
+                            </button>
+                        )}
                     </div>
                     <h2>Thông Tin Cá Nhân</h2>
                 </div>

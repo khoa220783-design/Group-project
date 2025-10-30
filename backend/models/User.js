@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'], // Chỉ cho phép 2 giá trị: user hoặc admin
         default: 'user' // Mặc định là user
+    },
+    avatar: {
+        type: String,
+        default: null // URL của avatar trên Cloudinary
     }
 }, {
     timestamps: true // Tự động thêm createdAt và updatedAt

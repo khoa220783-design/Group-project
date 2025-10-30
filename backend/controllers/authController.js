@@ -58,7 +58,8 @@ exports.signup = async (req, res) => {
                 id: savedUser._id,
                 name: savedUser.name,
                 email: savedUser.email,
-                role: savedUser.role
+                role: savedUser.role,
+                avatar: savedUser.avatar
             }
         });
     } catch (err) {
@@ -112,7 +113,8 @@ exports.login = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             }
         });
     } catch (err) {

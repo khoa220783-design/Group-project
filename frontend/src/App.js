@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Header from './components/Header';
+import Profile from './components/Profile';
 import UserList from './components/UserList';
 import AddUser from './components/AddUser';
 import './App.css';
@@ -187,6 +188,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Dashboard />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/profile" 
+                        element={
+                            <ProtectedRoute>
+                                <Profile />
                             </ProtectedRoute>
                         } 
                     />

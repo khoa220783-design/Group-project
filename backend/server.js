@@ -14,11 +14,13 @@ mongoose.connect(process.env.MONGO_URI)
 
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
+const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 
 // Routes
 app.use('/auth', authRoutes); // Auth routes: /auth/signup, /auth/login, /auth/logout
 app.use('/api', profileRoutes); // Profile routes: /api/profile (GET, PUT)
+app.use('/admin', adminRoutes); // Admin routes: /admin/make-admin, /admin/remove-admin
 app.use('/', userRoutes);
 
 // SỬA: Lấy PORT từ .env

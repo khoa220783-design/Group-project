@@ -57,7 +57,8 @@ exports.signup = async (req, res) => {
             user: {
                 id: savedUser._id,
                 name: savedUser.name,
-                email: savedUser.email
+                email: savedUser.email,
+                role: savedUser.role
             }
         });
     } catch (err) {
@@ -110,7 +111,8 @@ exports.login = async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
     } catch (err) {

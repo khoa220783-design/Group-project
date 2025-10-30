@@ -13,10 +13,12 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error('Loi ket noi MongoDB:', err));
 
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 const userRoutes = require('./routes/user');
 
 // Routes
 app.use('/auth', authRoutes); // Auth routes: /auth/signup, /auth/login, /auth/logout
+app.use('/api', profileRoutes); // Profile routes: /api/profile (GET, PUT)
 app.use('/', userRoutes);
 
 // SỬA: Lấy PORT từ .env

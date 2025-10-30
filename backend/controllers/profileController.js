@@ -19,6 +19,8 @@ exports.getProfile = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                avatar: user.avatar,
+                role: user.role,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
             }
@@ -84,6 +86,8 @@ exports.updateProfile = async (req, res) => {
                 id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
+                avatar: updatedUser.avatar,
+                role: updatedUser.role,
                 createdAt: updatedUser.createdAt,
                 updatedAt: updatedUser.updatedAt
             }

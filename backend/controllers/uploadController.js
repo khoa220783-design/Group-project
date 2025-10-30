@@ -98,10 +98,19 @@ exports.uploadAvatar = async (req, res) => {
                 }
             });
         } catch (error) {
-            console.error('Upload error:', error);
+            console.error('=== UPLOAD ERROR DETAILS ===');
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            console.error('Cloudinary config check:');
+            console.error('- Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
+            console.error('- API Key:', process.env.CLOUDINARY_API_KEY ? 'Set ✓' : 'Missing ✗');
+            console.error('- API Secret:', process.env.CLOUDINARY_API_SECRET ? 'Set ✓' : 'Missing ✗');
+            console.error('============================');
+            
             res.status(500).json({ 
                 message: 'Lỗi server khi upload avatar', 
-                error: error.message 
+                error: error.message,
+                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
             });
         }
     });

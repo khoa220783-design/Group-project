@@ -21,5 +21,15 @@ router.get('/me', verifyToken, authController.getCurrentUser);
 router.post('/upload-avatar', verifyToken, uploadController.uploadAvatar);
 router.delete('/delete-avatar', verifyToken, uploadController.deleteAvatar);
 
+// Test endpoint để kiểm tra Cloudinary config
+router.get('/test-cloudinary', (req, res) => {
+    res.json({
+        message: 'Cloudinary config check',
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY ? 'Set ✓' : 'Missing ✗',
+        api_secret: process.env.CLOUDINARY_API_SECRET ? 'Set ✓' : 'Missing ✗'
+    });
+});
+
 module.exports = router;
 

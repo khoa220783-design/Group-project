@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    // Hàm đăng ký
+    // Hàm đăng ký (KHÔNG tự động login)
     const signup = async (name, email, password) => {
         try {
             const response = await axios.post(`${API_URL}/api/auth/signup`, {
@@ -53,13 +53,7 @@ export const AuthProvider = ({ children }) => {
                 password
             });
 
-            const { token, user } = response.data;
-            
-            // Lưu token vào localStorage
-            localStorage.setItem('token', token);
-            setToken(token);
-            setUser(user);
-
+            // KHÔNG lưu token - user phải đăng nhập thủ công
             return { success: true, message: response.data.message };
         } catch (error) {
             return { 

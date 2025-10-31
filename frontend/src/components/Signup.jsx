@@ -42,8 +42,8 @@ function Signup() {
         const result = await signup(name, email, password);
         
         if (result.success) {
-            toast.success('Đăng ký thành công!');
-            navigate('/'); // Chuyển về trang chủ sau khi đăng ký
+            toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
+            navigate('/login'); // Chuyển về trang đăng nhập
         } else {
             setError(result.message);
             toast.error(result.message);

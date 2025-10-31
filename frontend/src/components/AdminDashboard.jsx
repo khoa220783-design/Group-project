@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { selectUser, selectAuth } from '../redux/slices/authSlice';
 import Header from './Header';
 import './Admin.css';
 
 const API_URL = "http://localhost:5000";
 
 function AdminDashboard() {
-    const { user, token } = useAuth();
+    const user = useSelector(selectUser);
+    const { accessToken } = useSelector(selectAuth);
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ function AdminDashboard() {
         setLoading(true);
         try {
             const response = await axios.get(`${API_URL}/users`, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${accessToken}` }
             });
             
             const usersList = response.data.users;
@@ -64,7 +66,7 @@ function AdminDashboard() {
 
         try {
             await axios.delete(`${API_URL}/users/${userId}`, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${accessToken}` }
             });
             
             toast.success(`Đã xóa user "${userName}" thành công`);
@@ -83,7 +85,7 @@ function AdminDashboard() {
 
         try {
             await axios.put(`${API_URL}/admin/make-admin/${userId}`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${accessToken}` }
             });
             
             toast.success(`Đã cấp quyền admin cho "${userName}"`);
@@ -102,7 +104,7 @@ function AdminDashboard() {
 
         try {
             await axios.put(`${API_URL}/admin/remove-admin/${userId}`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${accessToken}` }
             });
             
             toast.success(`Đã hủy quyền admin của "${userName}"`);

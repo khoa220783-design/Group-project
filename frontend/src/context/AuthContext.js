@@ -14,7 +14,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [token, setToken] = useState(localStorage.getItem('accessToken'));
     const [loading, setLoading] = useState(true);
 
     const API_URL = "http://localhost:5000";
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     // Kiểm tra token khi component mount
     useEffect(() => {
         const checkAuth = async () => {
-            const savedToken = localStorage.getItem('token');
+            const savedToken = localStorage.getItem('accessToken');
             if (savedToken) {
                 try {
                     // Gọi API để lấy thông tin user
@@ -33,9 +33,34 @@ export const AuthProvider = ({ children }) => {
                     setToken(savedToken);
                 } catch (error) {
                     console.error('Token không hợp lệ:', error);
-                    localStorage.removeItem('token');
-                    setToken(null);
-                    setUser(null);
+                    // Nếu access token hết hạn, thử refresh
+                    const refreshToken = localStorage.getItem('refreshToken');
+                    if (refreshToken) {
+                        try {
+                            const refreshResponse = await axios.post(`${API_URL}/api/auth/refresh`, {
+                                refreshToken
+                            });
+                            const newAccessToken = refreshResponse.data.accessToken;
+                            localStorage.setItem('accessToken', newAccessToken);
+                            setToken(newAccessToken);
+                            
+                            // Lấy lại thông tin user với token mới
+                            const userResponse = await axios.get(`${API_URL}/api/auth/me`, {
+                                headers: { Authorization: `Bearer ${newAccessToken}` }
+                            });
+                            setUser(userResponse.data.user);
+                        } catch (refreshError) {
+                            console.error('Refresh token thất bại:', refreshError);
+                            localStorage.removeItem('accessToken');
+                            localStorage.removeItem('refreshToken');
+                            setToken(null);
+                            setUser(null);
+                        }
+                    } else {
+                        localStorage.removeItem('accessToken');
+                        setToken(null);
+                        setUser(null);
+                    }
                 }
             }
             setLoading(false);
@@ -71,11 +96,12 @@ export const AuthProvider = ({ children }) => {
                 password
             });
 
-            const { token, user } = response.data;
+            const { accessToken, refreshToken, user } = response.data;
             
-            // Lưu token vào localStorage
-            localStorage.setItem('token', token);
-            setToken(token);
+            // Lưu cả 2 tokens vào localStorage
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            setToken(accessToken);
             setUser(user);
 
             return { success: true, message: response.data.message };
@@ -90,12 +116,14 @@ export const AuthProvider = ({ children }) => {
     // Hàm đăng xuất
     const logout = async () => {
         try {
-            await axios.post(`${API_URL}/api/auth/logout`);
+            const refreshToken = localStorage.getItem('refreshToken');
+            await axios.post(`${API_URL}/api/auth/logout`, { refreshToken });
         } catch (error) {
             console.error('Lỗi khi đăng xuất:', error);
         } finally {
-            // Xóa token khỏi localStorage
-            localStorage.removeItem('token');
+            // Xóa cả 2 tokens khỏi localStorage
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
             setToken(null);
             setUser(null);
         }

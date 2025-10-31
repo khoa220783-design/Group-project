@@ -10,6 +10,9 @@ router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 
+// Refresh Token route (public)
+router.post('/refresh', authController.refresh);
+
 // Password Reset routes (public)
 router.post('/forgot-password', passwordResetController.forgotPassword);
 router.post('/reset-password', passwordResetController.resetPassword);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
 import './Profile.css';
 
@@ -30,9 +30,7 @@ function Profile() {
 
     const fetchProfile = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/profile`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await axiosInstance.get(`/api/profile`);
             
             const profile = response.data.profile;
             setProfileData({
@@ -84,14 +82,11 @@ function Profile() {
         }
 
         try {
-            const response = await axios.put(
-                `${API_URL}/api/profile`,
+            const response = await axiosInstance.put(
+                `/api/profile`,
                 {
                     name: editData.name,
                     email: editData.email
-                },
-                {
-                    headers: { Authorization: `Bearer ${token}` }
                 }
             );
 
@@ -139,12 +134,11 @@ function Profile() {
             const formData = new FormData();
             formData.append('avatar', file);
 
-            const response = await axios.post(
-                `${API_URL}/api/auth/upload-avatar`,
+            const response = await axiosInstance.post(
+                `/api/auth/upload-avatar`,
                 formData,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
                     }
                 }
@@ -182,12 +176,7 @@ function Profile() {
         setUploadingAvatar(true);
 
         try {
-            await axios.delete(
-                `${API_URL}/api/auth/delete-avatar`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+            await axiosInstance.delete(`/api/auth/delete-avatar`);
 
             setProfileData(prev => ({
                 ...prev,

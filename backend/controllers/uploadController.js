@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const cloudinary = require('../config/cloudinary');
 const multer = require('multer');
+const sharp = require('sharp');
 const path = require('path');
 
 // Multer config - lưu file tạm thời trong memory
@@ -53,16 +54,23 @@ exports.uploadAvatar = async (req, res) => {
                 });
             }
 
+            // RESIZE ẢNH BẰNG SHARP trước khi upload
+            const resizedImageBuffer = await sharp(req.file.buffer)
+                .resize(500, 500, {
+                    fit: 'cover', // Crop để fit 500x500
+                    position: 'center' // Center crop
+                })
+                .jpeg({ quality: 90 }) // Convert sang JPEG, quality 90%
+                .toBuffer();
+
             // Upload lên Cloudinary
-            // Convert buffer to base64
-            const fileStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            // Convert resized buffer to base64
+            const fileStr = `data:image/jpeg;base64,${resizedImageBuffer.toString('base64')}`;
 
             const uploadResponse = await cloudinary.uploader.upload(fileStr, {
                 folder: 'group-project/avatars', // Folder trên Cloudinary
-                transformation: [
-                    { width: 500, height: 500, crop: 'fill', gravity: 'face' }, // Crop 500x500, focus vào mặt
-                    { quality: 'auto' } // Auto optimize quality
-                ]
+                resource_type: 'image'
+                // Không cần transformation vì đã resize bằng Sharp rồi
             });
 
             // Lấy user ID từ token (đã verify bởi middleware)

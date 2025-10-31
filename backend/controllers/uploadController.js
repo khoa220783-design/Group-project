@@ -3,6 +3,7 @@ const cloudinary = require('../config/cloudinary');
 const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
+const { logActivityDirect } = require('../middleware/logActivity');
 
 // Multer config - lưu file tạm thời trong memory
 const storage = multer.memoryStorage();
@@ -93,6 +94,13 @@ exports.uploadAvatar = async (req, res) => {
             // Cập nhật avatar URL trong database
             user.avatar = uploadResponse.secure_url;
             await user.save();
+
+            // 📝 LOG: Upload avatar
+            const ipAddress = req.ip || req.connection.remoteAddress;
+            const userAgent = req.headers['user-agent'];
+            await logActivityDirect(userId, user.email, 'AVATAR_UPLOAD', ipAddress, userAgent, {
+                avatarUrl: uploadResponse.secure_url
+            });
 
             res.json({
                 message: 'Upload avatar thành công',

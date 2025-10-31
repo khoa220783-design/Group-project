@@ -1,11 +1,24 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const mongoose = require('mongoose'); // THÊM
+const mongoose = require('mongoose');
 
 const app = express();
+
+// Middleware
 app.use(express.json());
-app.use(cors());
+
+// CORS Configuration - Cho phép frontend Render access
+const corsOptions = {
+    origin: [
+        'http://localhost:3000', // Development
+        'https://group-project-iezl.onrender.com', // Production Frontend
+        process.env.FRONTEND_URL // Dynamic từ .env
+    ].filter(Boolean), // Loại bỏ undefined
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
 // THÊM: Kết nối MongoDB
 mongoose.connect(process.env.MONGO_URI)

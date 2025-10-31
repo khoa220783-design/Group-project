@@ -1,10 +1,9 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000';
+import API_BASE_URL from '../config/api';
 
 // Tạo axios instance
 const axiosInstance = axios.create({
-    baseURL: API_URL
+    baseURL: API_BASE_URL
 });
 
 // Request interceptor: Tự động gắn access token vào header
@@ -46,7 +45,7 @@ axiosInstance.interceptors.response.use(
                 }
 
                 // Gọi API refresh để lấy access token mới
-                const refreshResponse = await axios.post(`${API_URL}/api/auth/refresh`, {
+                const refreshResponse = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
                     refreshToken
                 });
 

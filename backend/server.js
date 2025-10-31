@@ -12,9 +12,17 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB da ket noi thanh cong.'))
     .catch(err => console.error('Loi ket noi MongoDB:', err));
 
+const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
+const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
+
+// Routes
+app.use('/api/auth', authRoutes); // Auth routes: /api/auth/signup, /api/auth/login, /api/auth/logout
+app.use('/api', profileRoutes); // Profile routes: /api/profile (GET, PUT)
+app.use('/admin', adminRoutes); // Admin routes: /admin/make-admin, /admin/remove-admin
 app.use('/', userRoutes);
 
 // SỬA: Lấy PORT từ .env
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server dang chay tren port ${PORT}`));

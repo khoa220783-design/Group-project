@@ -17,6 +17,14 @@ router.put('/users/:id', verifyToken, isAdmin, adminController.updateUserRole);
 // DELETE /admin/users/:id - Xóa user (Admin only)
 router.delete('/users/:id', verifyToken, isAdmin, adminController.deleteUser);
 
+// ===== ACTIVITY LOGS ROUTES (Admin only) =====
+
+// GET /admin/logs - Xem activity logs (Admin only)
+router.get('/logs', verifyToken, isAdmin, adminController.getActivityLogs);
+
+// GET /admin/logs/stats - Thống kê logs (Admin only)
+router.get('/logs/stats', verifyToken, isAdmin, adminController.getLogStats);
+
 // ===== Legacy routes (giữ lại để tương thích) =====
 
 // PUT /admin/make-admin/:id - Cấp quyền admin cho user (cần là admin)

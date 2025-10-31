@@ -3,6 +3,7 @@ const PasswordReset = require('../models/PasswordReset');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { logActivityDirect } = require('../middleware/logActivity');
 
 // POST /forgot-password - Gửi email reset password
 exports.forgotPassword = async (req, res) => {
@@ -40,6 +41,11 @@ exports.forgotPassword = async (req, res) => {
 
         // Tạo reset link
         const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+
+        // 📝 LOG: Yêu cầu reset password
+        const ipAddress = req.ip || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        await logActivityDirect(user._id, email, 'PASSWORD_RESET_REQUEST', ipAddress, userAgent);
 
         // Gửi email THẬT qua Gmail SMTP
         try {
@@ -122,6 +128,11 @@ exports.resetPassword = async (req, res) => {
         // Đánh dấu token đã sử dụng
         resetRecord.used = true;
         await resetRecord.save();
+
+        // 📝 LOG: Reset password thành công
+        const ipAddress = req.ip || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        await logActivityDirect(user._id, user.email, 'PASSWORD_RESET_SUCCESS', ipAddress, userAgent);
 
         res.json({ 
             message: 'Đổi mật khẩu thành công. Bạn có thể đăng nhập với mật khẩu mới' 

@@ -4,10 +4,11 @@ const authController = require('../controllers/authController');
 const passwordResetController = require('../controllers/passwordResetController');
 const uploadController = require('../controllers/uploadController');
 const { verifyToken } = require('../middleware/auth');
+const { loginRateLimit } = require('../middleware/rateLimit');
 
 // Các route công khai (không cần token)
 router.post('/signup', authController.signup);
-router.post('/login', authController.login);
+router.post('/login', loginRateLimit, authController.login); // 🛡️ Rate limiting cho login
 router.post('/logout', authController.logout);
 
 // Refresh Token route (public)

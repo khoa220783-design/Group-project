@@ -10,6 +10,7 @@ import ResetPassword from './components/ResetPassword';
 import Header from './components/Header';
 import Profile from './components/Profile';
 import AdminDashboard from './components/AdminDashboard';
+import ActivityLogs from './components/ActivityLogs';
 import './App.css';
 
 // Protected Route Component
@@ -51,10 +52,16 @@ function Dashboard() {
                             </div>
                             
                             {user && user.role === 'admin' && (
-                                <div className="link-card" onClick={() => navigate('/admin')}>
-                                    <h3>Quản lý Users</h3>
-                                    <p>Quản lý tất cả users trong hệ thống</p>
-                                </div>
+                                <>
+                                    <div className="link-card" onClick={() => navigate('/admin')}>
+                                        <h3>Quản lý Users</h3>
+                                        <p>Quản lý tất cả users trong hệ thống</p>
+                                    </div>
+                                    <div className="link-card" onClick={() => navigate('/logs')}>
+                                        <h3>📊 Activity Logs</h3>
+                                        <p>Xem nhật ký hoạt động người dùng</p>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
@@ -109,6 +116,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <AdminDashboard />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/logs" 
+                        element={
+                            <ProtectedRoute>
+                                <ActivityLogs />
                             </ProtectedRoute>
                         } 
                     />

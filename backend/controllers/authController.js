@@ -3,6 +3,8 @@ const RefreshToken = require('../models/RefreshToken');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { logActivityDirect } = require('../middleware/logActivity');
+const { resetLoginAttempts } = require('../middleware/rateLimit');
 
 // POST /signup - Đăng ký tài khoản mới
 exports.signup = async (req, res) => {
@@ -52,6 +54,18 @@ exports.signup = async (req, res) => {
             { expiresIn: '7d' } // Token có hiệu lực 7 ngày
         );
 
+        // 📝 LOG: Ghi lại đăng ký thành công
+        const ipAddress = req.ip || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        await logActivityDirect(
+            savedUser._id, 
+            savedUser.email, 
+            'SIGNUP', 
+            ipAddress, 
+            userAgent,
+            { name: savedUser.name }
+        );
+
         // Trả về thông tin user (không bao gồm password) và token
         res.status(201).json({
             message: 'Đăng ký thành công',
@@ -84,9 +98,17 @@ exports.login = async (req, res) => {
             });
         }
 
+        // Lấy thông tin IP và User-Agent
+        const ipAddress = req.ip || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+
         // Tìm user theo email
         const user = await User.findOne({ email });
         if (!user) {
+            // 📝 LOG: Đăng nhập thất bại (email không tồn tại)
+            await logActivityDirect(null, email, 'LOGIN_FAILED', ipAddress, userAgent, {
+                reason: 'Email không tồn tại'
+            });
             return res.status(401).json({ 
                 message: 'Email hoặc mật khẩu không đúng' 
             });
@@ -95,6 +117,10 @@ exports.login = async (req, res) => {
         // So sánh password với password đã mã hóa
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
+            // 📝 LOG: Đăng nhập thất bại (sai mật khẩu)
+            await logActivityDirect(user._id, email, 'LOGIN_FAILED', ipAddress, userAgent, {
+                reason: 'Sai mật khẩu'
+            });
             return res.status(401).json({ 
                 message: 'Email hoặc mật khẩu không đúng' 
             });
@@ -116,6 +142,14 @@ exports.login = async (req, res) => {
             userId: user._id,
             token: refreshToken,
             expiresAt
+        });
+
+        // 🎉 Reset login attempts (đăng nhập thành công)
+        await resetLoginAttempts(ipAddress);
+
+        // 📝 LOG: Đăng nhập thành công
+        await logActivityDirect(user._id, user.email, 'LOGIN_SUCCESS', ipAddress, userAgent, {
+            role: user.role
         });
 
         // Trả về cả 2 tokens và thông tin user
@@ -150,8 +184,19 @@ exports.logout = async (req, res) => {
             });
         }
 
+        // Tìm refresh token để lấy userId
+        const tokenDoc = await RefreshToken.findOne({ token: refreshToken });
+        
         // Xóa refresh token khỏi database
         await RefreshToken.deleteOne({ token: refreshToken });
+
+        // 📝 LOG: Đăng xuất
+        if (tokenDoc) {
+            const user = await User.findById(tokenDoc.userId);
+            const ipAddress = req.ip || req.connection.remoteAddress;
+            const userAgent = req.headers['user-agent'];
+            await logActivityDirect(tokenDoc.userId, user?.email, 'LOGOUT', ipAddress, userAgent);
+        }
 
         // Client cũng cần xóa token khỏi localStorage
         res.json({ 

@@ -1,41 +1,37 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { login as loginAction, selectLoading, selectError } from '../redux/slices/authSlice';
 import './Auth.css';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const { login } = useAuth();
+    
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const loading = useSelector(selectLoading);
+    const error = useSelector(selectError);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
 
         // Validation
         if (!email || !password) {
-            setError('Vui lòng điền đầy đủ thông tin');
-            setLoading(false);
+            toast.error('Vui lòng điền đầy đủ thông tin');
             return;
         }
 
-        const result = await login(email, password);
+        // Dispatch Redux login action
+        const result = await dispatch(loginAction({ email, password }));
         
-        if (result.success) {
-            toast.success('Đăng nhập thành công!');
+        if (loginAction.fulfilled.match(result)) {
+            toast.success('🎉 Đăng nhập thành công!');
             navigate('/'); // Chuyển về trang chủ sau khi đăng nhập
         } else {
-            setError(result.message);
-            toast.error(result.message);
+            toast.error(result.payload || 'Đăng nhập thất bại');
         }
-        
-        setLoading(false);
     };
 
     return (

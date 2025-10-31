@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import store from './redux/store';
+import { fetchCurrentUser, selectIsAuthenticated, selectUser, selectLoading } from './redux/slices/authSlice';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import ForgotPassword from './components/ForgotPassword';
@@ -13,12 +15,22 @@ import AdminDashboard from './components/AdminDashboard';
 import ActivityLogs from './components/ActivityLogs';
 import './App.css';
 
-// Protected Route Component
+// Protected Route Component - Sử dụng Redux
 function ProtectedRoute({ children }) {
-    const { isAuthenticated, loading } = useAuth();
+    const dispatch = useDispatch();
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const loading = useSelector(selectLoading);
+    const user = useSelector(selectUser);
+
+    useEffect(() => {
+        // Nếu có token nhưng chưa có user info, fetch user
+        if (isAuthenticated && !user) {
+            dispatch(fetchCurrentUser());
+        }
+    }, [isAuthenticated, user, dispatch]);
 
     if (loading) {
-        return <div className="loading">Đang tải...</div>;
+        return <div className="loading">🔄 Đang tải...</div>;
     }
 
     return isAuthenticated ? children : <Navigate to="/login" />;
@@ -26,7 +38,7 @@ function ProtectedRoute({ children }) {
 
 // Main Dashboard Component - Trang chủ sau khi đăng nhập
 function Dashboard() {
-    const { user } = useAuth();
+    const user = useSelector(selectUser);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -73,8 +85,8 @@ function Dashboard() {
 
 function App() {
     return (
-        <Router>
-            <AuthProvider>
+        <Provider store={store}>
+            <Router>
                 <ToastContainer
                     position="top-right"
                     autoClose={3000}
@@ -128,8 +140,8 @@ function App() {
                         } 
                     />
                 </Routes>
-            </AuthProvider>
-        </Router>
+            </Router>
+        </Provider>
     );
 }
 

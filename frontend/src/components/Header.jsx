@@ -1,15 +1,17 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { logout as logoutAction, selectUser } from '../redux/slices/authSlice';
 import './Header.css';
 
 function Header() {
-    const { user, logout } = useAuth();
+    const dispatch = useDispatch();
+    const user = useSelector(selectUser);
     const navigate = useNavigate();
     const location = useLocation();
 
     const handleLogout = async () => {
-        await logout();
+        await dispatch(logoutAction());
         navigate('/login');
     };
 

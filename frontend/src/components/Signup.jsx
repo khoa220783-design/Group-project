@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { signup as signupAction, selectLoading } from '../redux/slices/authSlice';
 import './Auth.css';
 
 function Signup() {
@@ -9,55 +10,45 @@ function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
 
-    const { signup } = useAuth();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const loading = useSelector(selectLoading);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
 
         // Validation
         if (!name || !email || !password || !confirmPassword) {
-            setError('Vui lòng điền đầy đủ thông tin');
-            setLoading(false);
+            toast.error('Vui lòng điền đầy đủ thông tin');
             return;
         }
 
         if (password.length < 6) {
-            setError('Mật khẩu phải có ít nhất 6 ký tự');
-            setLoading(false);
+            toast.error('Mật khẩu phải có ít nhất 6 ký tự');
             return;
         }
 
         if (password !== confirmPassword) {
-            setError('Mật khẩu xác nhận không khớp');
-            setLoading(false);
+            toast.error('Mật khẩu xác nhận không khớp');
             return;
         }
 
-        const result = await signup(name, email, password);
+        // Dispatch Redux signup action
+        const result = await dispatch(signupAction({ name, email, password }));
         
-        if (result.success) {
-            toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
+        if (signupAction.fulfilled.match(result)) {
+            toast.success('✅ Đăng ký thành công! Vui lòng đăng nhập.');
             navigate('/login'); // Chuyển về trang đăng nhập
         } else {
-            setError(result.message);
-            toast.error(result.message);
+            toast.error(result.payload || 'Đăng ký thất bại');
         }
-        
-        setLoading(false);
     };
 
     return (
         <div className="auth-container">
             <div className="auth-card">
                 <h2>Đăng Ký</h2>
-                
-                {error && <div className="error-message">{error}</div>}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">

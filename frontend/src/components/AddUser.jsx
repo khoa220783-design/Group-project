@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { selectAuth } from '../redux/slices/authSlice';
 
 // Đây là URL API backend của bạn
 const API_URL = "http://localhost:5000";
@@ -9,7 +10,7 @@ const API_URL = "http://localhost:5000";
 function AddUser({ onUserAdded }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const { token } = useAuth();
+    const { accessToken } = useSelector(selectAuth);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,7 +36,7 @@ function AddUser({ onUserAdded }) {
                 `${API_URL}/users`, 
                 { name, email },
                 {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${accessToken}` }
                 }
             );
             toast.success('Thêm user thành công!');

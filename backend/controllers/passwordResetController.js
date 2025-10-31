@@ -41,24 +41,22 @@ exports.forgotPassword = async (req, res) => {
         // Tạo reset link
         const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
-        // Gửi email (development mode - chỉ log ra console)
-        // Trong production, sẽ gửi email thật
-        console.log('\n=== PASSWORD RESET EMAIL ===');
-        console.log(`To: ${email}`);
-        console.log(`Subject: Reset your password`);
-        console.log(`Reset Link: ${resetLink}`);
-        console.log(`Token: ${resetToken}`);
-        console.log(`Expires at: ${expiresAt}`);
-        console.log('============================\n');
-
-        // Optional: Gửi email thật (cần config SMTP)
-        // await sendResetEmail(email, resetLink);
+        // Gửi email THẬT qua Gmail SMTP
+        try {
+            await sendResetEmail(email, resetLink);
+            console.log(`✅ Email reset password đã gửi tới: ${email}`);
+        } catch (emailError) {
+            console.error('❌ Lỗi gửi email:', emailError.message);
+            // Vẫn log ra console để backup
+            console.log('\n=== PASSWORD RESET EMAIL (Backup) ===');
+            console.log(`To: ${email}`);
+            console.log(`Reset Link: ${resetLink}`);
+            console.log('====================================\n');
+        }
 
         res.json({ 
-            message: 'Nếu email tồn tại, link reset password đã được gửi',
-            // Development only - remove in production
-            resetToken: resetToken,
-            resetLink: resetLink
+            message: 'Nếu email tồn tại, link reset password đã được gửi'
+            // KHÔNG trả resetToken/resetLink trong response (security)
         });
     } catch (err) {
         res.status(500).json({ 
@@ -139,7 +137,7 @@ exports.resetPassword = async (req, res) => {
 // Helper function để gửi email (optional - cần config SMTP)
 async function sendResetEmail(email, resetLink) {
     // Config SMTP transporter
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: process.env.SMTP_PORT || 587,
         secure: false,
@@ -153,21 +151,51 @@ async function sendResetEmail(email, resetLink) {
     const mailOptions = {
         from: `"Group Project" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: 'Reset your password',
+        subject: 'Đặt lại mật khẩu - Group Project',
         html: `
-            <h1>Reset Your Password</h1>
-            <p>You requested to reset your password.</p>
-            <p>Click the link below to reset your password:</p>
-            <a href="${resetLink}" style="
-                background-color: #2AA2CD;
-                color: white;
-                padding: 12px 24px;
-                text-decoration: none;
-                border-radius: 5px;
-                display: inline-block;
-            ">Reset Password</a>
-            <p>This link will expire in 1 hour.</p>
-            <p>If you didn't request this, please ignore this email.</p>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background-color: #2AA2CD; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                    .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
+                    .button { background-color: #2AA2CD; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; font-weight: bold; }
+                    .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🔐 Đặt Lại Mật Khẩu</h1>
+                    </div>
+                    <div class="content">
+                        <p>Xin chào,</p>
+                        <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản của mình tại <strong>Group Project</strong>.</p>
+                        <p>Vui lòng nhấn vào nút bên dưới để đặt lại mật khẩu:</p>
+                        <div style="text-align: center;">
+                            <a href="${resetLink}" class="button">Đặt Lại Mật Khẩu</a>
+                        </div>
+                        <p><strong>Lưu ý:</strong></p>
+                        <ul>
+                            <li>Link này sẽ <strong>hết hạn sau 1 giờ</strong></li>
+                            <li>Nếu không phải bạn yêu cầu, vui lòng bỏ qua email này</li>
+                            <li>Không chia sẻ link này với bất kỳ ai</li>
+                        </ul>
+                        <p style="margin-top: 20px; font-size: 12px; color: #666;">
+                            Nếu nút không hoạt động, copy link sau vào trình duyệt:<br>
+                            <span style="word-break: break-all; color: #2AA2CD;">${resetLink}</span>
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Group Project. All rights reserved.</p>
+                        <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
         `
     };
 

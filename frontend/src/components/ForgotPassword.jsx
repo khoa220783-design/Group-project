@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './Auth.css';
@@ -9,7 +9,6 @@ const API_URL = "http://localhost:5000";
 function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,19 +22,15 @@ function ForgotPassword() {
         }
 
         try {
-            const response = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
+            await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
             
-            toast.success('Gửi yêu cầu thành công! Đang chuyển đến trang đặt lại mật khẩu...');
+            toast.success('✅ Email đặt lại mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.', {
+                autoClose: 5000
+            });
             
-            // Chuyển thẳng đến trang reset password với token
-            setTimeout(() => {
-                if (response.data.resetToken) {
-                    navigate(`/reset-password?token=${response.data.resetToken}`);
-                } else {
-                    // Fallback nếu không có token
-                    toast.info('Vui lòng kiểm tra email để lấy link đặt lại mật khẩu');
-                }
-            }, 1500);
+            // Xóa email input sau khi gửi thành công
+            setEmail('');
+            setLoading(false);
         } catch (error) {
             console.error('Forgot password error:', error);
             const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại sau.';

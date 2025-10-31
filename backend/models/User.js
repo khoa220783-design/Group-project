@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'], // Chỉ cho phép 2 giá trị: user hoặc admin
+        enum: ['user', 'admin', 'moderator'], // 3 roles: user, admin, moderator
         default: 'user' // Mặc định là user
     },
     avatar: {

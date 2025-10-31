@@ -31,12 +31,13 @@ function Header() {
                         >
                             Profile
                         </Link>
-                        {user && user.role === 'admin' && (
+                        {/* Admin và Moderator đều thấy Admin panel */}
+                        {user && (user.role === 'admin' || user.role === 'moderator') && (
                             <Link 
                                 to="/admin" 
                                 className={location.pathname === '/admin' ? 'nav-link active' : 'nav-link'}
                             >
-                                Admin
+                                {user.role === 'admin' ? 'Admin Panel' : 'Moderator Panel'}
                             </Link>
                         )}
                     </nav>
@@ -46,6 +47,7 @@ function Header() {
                         <span className="welcome-text">
                             Xin chào, {user.name}
                             {user.role === 'admin' && <span className="admin-badge">Admin</span>}
+                            {user.role === 'moderator' && <span className="moderator-badge">Moderator</span>}
                         </span>
                         <button onClick={handleLogout} className="logout-button">
                             Đăng xuất

@@ -73,6 +73,15 @@
     border: 1px solid rgba(255, 215, 0, 0.5);
 }
 
+.moderator-badge {
+    background: rgba(138, 43, 226, 0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(138, 43, 226, 0.5);
+}
+
 .logout-button {
     background-color: rgba(255, 255, 255, 0.2);
     color: white;

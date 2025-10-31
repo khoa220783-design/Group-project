@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
 import Header from './Header';
 import axiosInstance from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
+import { setUser, selectUser } from '../redux/slices/authSlice';
 import './Profile.css';
 
 const API_URL = "http://localhost:5000";
 
 function Profile() {
-    const { user, token, setUser } = useAuth();
+    const dispatch = useDispatch();
+    const user = useSelector(selectUser);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -149,10 +151,10 @@ function Profile() {
                 avatar: response.data.avatar
             }));
 
-            // Update user in context if setUser is available
-            if (setUser) {
-                setUser(prev => ({
-                    ...prev,
+            // Update user in Redux store
+            if (user) {
+                dispatch(setUser({
+                    ...user,
                     avatar: response.data.avatar
                 }));
             }
@@ -183,10 +185,10 @@ function Profile() {
                 avatar: null
             }));
 
-            // Update user in context if setUser is available
-            if (setUser) {
-                setUser(prev => ({
-                    ...prev,
+            // Update user in Redux store
+            if (user) {
+                dispatch(setUser({
+                    ...user,
                     avatar: null
                 }));
             }

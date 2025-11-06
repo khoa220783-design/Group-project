@@ -10,6 +10,7 @@ function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [role, setRole] = useState('user'); // Mặc định là user
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -35,7 +36,7 @@ function Signup() {
         }
 
         // Dispatch Redux signup action
-        const result = await dispatch(signupAction({ name, email, password }));
+        const result = await dispatch(signupAction({ name, email, password, role }));
         
         if (signupAction.fulfilled.match(result)) {
             toast.success('✅ Đăng ký thành công! Vui lòng đăng nhập.');
@@ -93,6 +94,19 @@ function Signup() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             disabled={loading}
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Vai trò:</label>
+                        <select
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            disabled={loading}
+                            className="role-select"
+                        >
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
                     </div>
 
                     <button type="submit" className="auth-button" disabled={loading}>

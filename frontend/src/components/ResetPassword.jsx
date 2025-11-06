@@ -3,8 +3,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './Auth.css';
+import API_BASE_URL from '../config/api';
 
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
 
 function ResetPassword() {
     const [searchParams] = useSearchParams();

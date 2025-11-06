@@ -5,8 +5,9 @@ import axiosInstance from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
 import { setUser, selectUser } from '../redux/slices/authSlice';
 import './Profile.css';
+import API_BASE_URL from '../config/api';
 
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
 
 function Profile() {
     const dispatch = useDispatch();

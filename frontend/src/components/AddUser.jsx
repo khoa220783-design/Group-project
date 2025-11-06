@@ -3,9 +3,10 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { selectAuth } from '../redux/slices/authSlice';
+import API_BASE_URL from '../config/api';
 
 // Đây là URL API backend của bạn
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
 
 function AddUser({ onUserAdded }) {
     const [name, setName] = useState('');

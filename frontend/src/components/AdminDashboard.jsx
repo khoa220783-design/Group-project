@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 import { selectUser, selectAuth } from '../redux/slices/authSlice';
 import Header from './Header';
 import './Admin.css';
+import API_BASE_URL from '../config/api';
 
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
 
 function AdminDashboard() {
     const user = useSelector(selectUser);
